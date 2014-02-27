@@ -102,6 +102,13 @@ function friendsListUI(domElement, friendsListSocket)
 									moveWhisperWindow(id, e.pageX, e.pageY);
                                 }
                             });
+                            clickMenuItems.push({
+                                item: "Go To Room",
+                                action: function()
+                                {
+									global.requestPartialPage("room", username, false);
+                                }
+                            });							
                         }
                         clickMenuItems.push({
                             item: "Remove Friend",

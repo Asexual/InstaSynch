@@ -32,13 +32,12 @@
         $nsfw = $row["NSFW"];
         $listing = $row["listing"];
     }
-    else 
+    else
     {
-        header("HTTP/1.0 404 Not Found");
-		ob_end_clean(); //clear previous buffer (I.e. if the file was included and not saught after with an ajax call)
-        echo "This room does not exist.";
-        exit();
+		header("Location: /404.php");
+		exit();
     }
+	
     $query = "UPDATE rooms SET visits = '{$visits}' WHERE rooms . roomname = '{$roomname}'";
     mysql_query($query, $connection);
     mysql_close($connection);
@@ -54,6 +53,21 @@
 	{
 		global.loadRoomObj();
 	});
+	//get emotes
+	$.ajax({
+            type: "GET",
+            url: "/emotes/"+ROOMNAME+".js",
+			error: function()
+			{
+				$.ajax({
+				type: "GET",
+				url: "/js/emotes.js",
+				dataType: "script",
+				cache: true});
+			},
+            dataType: "script",
+            cache: true
+    });
 </script>
 <div style="display: none;" id="cleanUpOnRemoval"></div>
 <div id="st-descr">

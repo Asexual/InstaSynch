@@ -15,10 +15,11 @@ app.setMaxListeners(0);
     [SOCKET RELATED STUFF]
 */
 var fs = require('fs');
-//process.on('uncaughtException', function (error) {
-    //console.log("UNHANDLED ERROR! Logged to file.");
-    //fs.appendFile("crashlog.txt", error.stack + "---END OF ERROR----");
-//});
+process.on('uncaughtException', function (error) {
+    console.log("UNHANDLED ERROR! Logged to file.");
+    fs.appendFile("crashlog.txt", error.stack + "---END OF ERROR----");
+	process.exit(1);
+});
 function db()
 {
     return mysql.createConnection({
@@ -352,7 +353,7 @@ friends_list.sockets.on('connection', function(socket)
                 {
                     var connection = db();
                     connection.connect();
-                    var friend = socket.friendRequests.get().sent[data.id];
+                    var friend = users[socket.user.id].friendRequests.get().sent[data.id];
                     var userA = Math.min(friend.id, socket.user.id);
                     var userB = Math.max(friend.id, socket.user.id);
                     connection.query(queries.removeRequests,[userA, userB],function(err)

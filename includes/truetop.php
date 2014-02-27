@@ -29,8 +29,8 @@
                                                     <a class="clicker" id="myName"><img src="/images/clickable-dropdown/i-1.png" alt="Icon"></a>
                                                     <ul>						
                                                             <li><a href="#" id="myRoomLink"><img src="/images/clickable-dropdown/i-2.png" alt="Icon">My Room</a></li>
-                                                            <li><a href="/settings/"><img src="/images/clickable-dropdown/i-3.png" alt="Icon">Settings</a></li>
-                                                            <li><a href="/help.php"><img src="/images/clickable-dropdown/i-5.png" alt="Icon">Help</a></li>
+                                                            <li><a href="/settings/" onclick="global.requestPartialPage('settings'); return false;"><img src="/images/clickable-dropdown/i-3.png" alt="Icon">Settings</a></li>
+                                                            <li><a href="/help.php" onclick="global.requestPartialPage('help'); return false;"><img src="/images/clickable-dropdown/i-5.png" alt="Icon">Help</a></li>
                                                             <li><a href="" onclick="$.cookie('username', '', {expires: -1, path: '/'}); $.cookie('sessionid', '', {expires: -1, path: '/'} );"><img src="/images/clickable-dropdown/i-6.png" alt="Icon">Sign out</a></li>
                                                     </ul>
                                             </li>
@@ -69,7 +69,10 @@
                                 //Drop down
                                 $("#myName").html('<img src="/images/clickable-dropdown/i-1.png" alt="Icon">' + $.cookie("username"));
                                 $("#myRoomLink").attr("href", "/rooms/" + $.cookie("username"));
-
+								$("#myRoomLink").click(function()
+								{
+									global.requestPartialPage('room', $.cookie("username"), false); return false;
+								});
                                 $('.click-nav > ul').toggleClass('no-js js');
                                 $('.click-nav .js ul').hide();
                                 $('.click-nav .js').click(function(e) {

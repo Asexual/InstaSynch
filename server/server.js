@@ -28,7 +28,7 @@ var iptable = new Object();
 
 chat_room.sockets.on('connection', function(socket)
 {
-		console.log("USER CONNECTED.");
+
         var ip = "";
         try {(ip = socket.manager.handshaken[socket.id].address.address)} catch (e) {console.log("Error with socket IP address"); socket.disconnect(); return;}
         if (iptable[ip] != undefined)
@@ -154,7 +154,6 @@ chat_room.sockets.on('connection', function(socket)
         }
     });
     socket.on('disconnect', function(){ 
-		console.log("USER DISCONNECTED.");
         socket.connected = false;
         //if socket joined disconnect, otherwise really do nothing
         iptable[ip]--;

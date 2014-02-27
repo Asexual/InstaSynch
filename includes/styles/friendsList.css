@@ -132,17 +132,17 @@
 }
 .friendsList .whisper-container .whisper-window .whisper-window-content .whisper-box{
     height: calc(100% - 30px);
-    background-color: rgba(70,162,206, 0.9);
+    background-color: rgba(70,162,206, 0.95);
     overflow: hidden;
     position: relative; /* require for perfect-scroll bar */
 }
 .friendsList .whisper-container .whisper-window .whisper-window-content .whisper-box .whisper{
     padding: 14px;
     font-size: 14px;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 .friendsList .whisper-container .whisper-window .whisper-window-content .whisper-box .sent{
-    margin: 4px 4px 4px 10%;
+    margin: 4px 16px 4px 10%;
     background-color: rgba(100,100,100,0.2);
 }
 .friendsList .whisper-container .whisper-window .whisper-window-content .whisper-box .received{

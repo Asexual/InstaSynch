@@ -105,7 +105,7 @@ function loadRoom() {
             room.sendcmd('reload', null);
         });
         $('#cin')['focus'](function () {
-            document['title'] = 'InstaSynch';
+            document.title = global.page.title;
             newMsg = false;
         });
         $('#ban').click(function () {

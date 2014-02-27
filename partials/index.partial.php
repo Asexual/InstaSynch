@@ -97,5 +97,5 @@
 				echo PHP_EOL;
 			}   
 		?>
-</div>
+	</div>
 </div>
