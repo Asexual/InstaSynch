@@ -7,7 +7,8 @@
 //}
 ?>
 <?php
-    include dirname(__FILE__) . "/../includes/connect.php";
+    require dirname(__FILE__) . "/../../includes/connect.php";
+	require "cors.php";
     if (isset($_POST["username"],$_POST["password"],$_POST["email"]))
     {
 		$db = createDb(true);
@@ -64,8 +65,8 @@
 					}
 					if ($continue){
 						$db->query("insert into ips (ip, count) VALUES ('{$ip}', 1) on duplicate key update count=count+1");
-						setcookie("username", $username, time() + (60*60*24*7), "/");
-						setcookie("sessionid", $sessionid, time() + (60*60*24*7), "/");
+						setcookie("username", $username, time() + (60*60*24*7), "/", ".instasynch.com");
+						setcookie("sessionid", $sessionid, time() + (60*60*24*7), "/", ".instasynch.com");
 						$output["success"] = true;
 					}
 					else{

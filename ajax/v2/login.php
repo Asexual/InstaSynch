@@ -1,5 +1,6 @@
 <?php
-    require dirname(__FILE__) . "/../includes/connect.php";
+    require dirname(__FILE__) . "/../../includes/connect.php";
+	require "cors.php";
     if (isset($_POST["username"], $_POST["password"])) //check if trying to login
     {
 		$db = createDb();
@@ -17,8 +18,8 @@
 			$query = $db->prepare("update users set cookie = :sessionid where username = :username limit 1");
 			$query->execute(array("sessionid"=>$sessionid, "username"=>$username));
 			
-            setcookie("username", $username, time() + (60*60*24*7), "/");
-            setcookie("sessionid", $sessionid, time() + (60*60*24*7), "/");            
+            setcookie("username", $username, time() + (60*60*24*7), "/",".instasynch.com");
+            setcookie("sessionid", $sessionid, time() + (60*60*24*7), "/",".instasynch.com");           
             $output["success"] = true;
             $output["username"] = $username;
         }

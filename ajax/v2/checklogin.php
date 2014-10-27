@@ -1,5 +1,6 @@
 <?php
-    require dirname(__FILE__) . "/../includes/connect.php";
+    require dirname(__FILE__) . "/../../includes/connect.php";
+	require "cors.php";
     if (isset($_COOKIE["username"], $_COOKIE["sessionid"])) //check if valid
     {
 		$db = createDb();
