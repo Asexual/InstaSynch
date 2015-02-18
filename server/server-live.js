@@ -8,18 +8,17 @@ if (cluster.isMaster) {
 	var commands = require("./commands");
 	var parser = require("./parsers");
 	var crypto = require('crypto');
-	//var port = process.env.port;
-	var port = 8080;
+
 	process.on('uncaughtException', function (error) {
 		console.log("UNHANDLED ERROR! Logged to file.");
 		fs.appendFile("crashlog.txt", error.stack + "---END OF ERROR----", function(){});
 	});
 	var connect = require('connect');
-	var app = connect(function(req, res) {res.writeHead(404); res.end("No resource found.");}).listen(port);
-	global.chat_room = require('socket.io').listen(app, {"log level": 2, "heartbeat timeout": 20, "heartbeat interval": 5, "close timeout": 20, "transports": ['websocket','htmlfile', 'xhr-polling', 'jsonp-polling'], 'polling duration': 10});
+	var app = connect(function(req, res) {res.writeHead(404); res.end("No resource found.");}).listen(8080);
+	global.chat_room = require('socket.io').listen(app, {"log level": 2, "heartbeat timeout": 20, "heartbeat interval": 5, "close timeout": 20, "transports": ['websocket','xhr-polling', 'jsonp-polling'], 'polling duration': 10});
 
-	//global.phploc = "http://127.0.0.1/";
-	global.phploc = "http://dev.instasynch.com/";
+	global.phploc = "http://127.0.0.1/";
+	//global.phploc = "http://dev.instasynch.com/";
 	global.iptable = new Object();
 	global.rooms = new Array();
 
@@ -78,7 +77,7 @@ if (cluster.isMaster) {
 			roomname = roomname.toLowerCase();
 			if (rooms[roomname] == undefined) //room not in memory
 			{
-				request.post(phploc + 'data/roominfo.php', {form:{ room: roomname}}, function(e, r, msg)     
+				request.post(phploc + 'data/roominfo.php', {form:{ room: roomname}}, function(e, r, msg)
 				{
 					try {var result = JSON.parse(msg)} catch(e) {console.log("Room JSON not valid?"); return;}
 					if (result.error == undefined )
@@ -100,7 +99,7 @@ if (cluster.isMaster) {
 						socket.emit('sys-message', { message: "This roomname does not exist."});
 						socket.attemptDisconnect();
 					}
-				});              
+				});
 			}
 			else //room in memory
 			{
@@ -110,8 +109,8 @@ if (cluster.isMaster) {
 					(socketIp = socket.handshake.headers['cf-connecting-ip'] || socket.handshake.address.address);
 				} catch (e)
 				{console.log("Error with socket IP address"); return;}
-				request.post(phploc + 'data/parseuser.php', {form:{username: username, cookie: cookie, ip: socketIp, 
-																   room: roomname}}, function(e, r, msg)     
+				request.post(phploc + 'data/parseuser.php', {form:{username: username, cookie: cookie, ip: socketIp,
+																   room: roomname}}, function(e, r, msg)
 				{
 					//data to send back from php file: username, permissions, class, style
 					if (socket.connected == false) //if the socket disconnected by the time this runs, stop
@@ -123,10 +122,10 @@ if (cluster.isMaster) {
 						socket.attemptDisconnect();
 					}
 					else
-					{     
+					{
 						var user = response.user;
 						var hashedIp = crypto.createHash('md5').update("Random Salt Value: $33x!20" + socketIp).digest("hex").substring(0, 11);
-						socket.info = {username: user.username, permissions: user.permissions, room: roomname, 
+						socket.info = {username: user.username, permissions: user.permissions, room: roomname,
 									   loggedin: user.loggedin, ip: socketIp, hashedIp: hashedIp,
 									   skipped: false, voteinfo: {voted: false, option: null}};
 						if (rooms[socket.info.room] != undefined)
@@ -156,7 +155,7 @@ if (cluster.isMaster) {
                 rooms[socket.info.room].leave(socket);
             }
 		}
-		//socket.disconnect(); //causes error..?
+		//socket.disconnect(); //remove socket from clients memory in master
 	}
 	function message(socket, message){
 		if (socket.joined && socket.info.username.toLowerCase() != "unnamed")
@@ -171,25 +170,22 @@ if (cluster.isMaster) {
 			{
 				if (data.data === null)
 				{
-					data.data = {}; //help prevent crash when null is sent but needed. 
+					data.data = {}; //help prevent crash when null is sent but needed.
 					//commands.js will see this as an object and thus .property will trigger the undefined checks
 				}
 				commands.commands[data.command](data.data, socket);
 			}
-		}		
+		}
 	}
 	var iptable = new Object();
 	chat_room.sockets.on('connection', function(socket) {
-		console.log('connection from server listening on: '+ port);
 		socket.attemptDisconnect = function(){
 			if (socket.joined)
 			{
 				socket.leave(socket.info.room); //unsubscribe user from room immediately
 			}
 			messageSocket({type: "disconnect", id: socket.id});
-		};		
-		//get IP
-		var ip = "";
+		};
 		//Fixes rare error that happened from time to time
 		var ip = "";
 		try {
@@ -197,7 +193,7 @@ if (cluster.isMaster) {
 			(ip = socket.handshake.headers['cf-connecting-ip'] || socket.handshake.address.address);
 		} catch (e)
 		{console.log("Error with socket IP address"); socket.emit("request-disconnect"); socket.attemptDisconnect(); return;}
-	
+
 		//Max IP connected to this worker logic
 		if (iptable[ip] != undefined)
         {
@@ -206,12 +202,12 @@ if (cluster.isMaster) {
 				console.log("Max users online with IP:"+ip);
                 socket.emit('sys-message', { message: "Max users online with this IP."});
 				socket.emit("request-disconnect");
-				socket.attemptDisconnect();	
+				socket.attemptDisconnect();
                 return;
             }
             else
             {
-                iptable[ip]++; 
+                iptable[ip]++;
             }
         }
         else
@@ -255,8 +251,8 @@ if (cluster.isMaster) {
 			}
 			socketMessage({type: "disconnect", id: socket.id});
 		});
-		
-		var currentCharacters = 0; 
+
+		var currentCharacters = 0;
 		var currentMessages = 0;
 		var reduceMsgInterval = null; //reduce messages by 1 and characters by 100 every second
 		socket.on('message', function(data)
@@ -265,7 +261,7 @@ if (cluster.isMaster) {
 				//increment message limits
 				currentCharacters += data.message.length;
 				currentMessages += 1;
-				
+
 				if (currentCharacters > 260 || currentMessages > 3)
 				{
 					socket.emit("sys-message", {message: "Please don't spam/flood the chat."});
@@ -273,7 +269,7 @@ if (cluster.isMaster) {
 					currentMessages = Math.min(6, currentMessages);
 				}
 				else
-				{      
+				{
 					lastMessage = data.message;
 					socketMessage({type: "chat", id: socket.id, data: {message: data.message}});
 				}
@@ -289,11 +285,11 @@ if (cluster.isMaster) {
 						{
 							clearInterval(reduceMsgInterval);
 							reduceMsgInterval = null;
-						}     
+						}
 					},1000);
 				}
-			}			
-			
+			}
+
 		});
 		var queue = commandQueue.create(6);
 		socket.on('command', function(data)
@@ -311,60 +307,4 @@ if (cluster.isMaster) {
 			}
 		});
 	});
-}
-else{
-	//Just some reverse proxy stuff we experimented with. Works breddy good.
-	var http = require('http');
-	var httpProxy = require('http-proxy');
-	var crypto = require('crypto'); 
-	var url  = require('url');
-	
-	var server1 = cluster.fork({port: 38001});
-	var server2 = cluster.fork({port: 38002});
-	
-	var servers = [
-		38001, 38002
-	];
-	
-	var proxy = new httpProxy.createProxyServer();
-	proxy.on('error', function(){
-		console.log('error');
-	});
-	proxy.on('proxyRes', function (res) {
-	  console.log('RAW Response from the target', JSON.stringify(res.headers, true, 2));
-	});	
-	var proxyServer = http.createServer(function (req, res) {
-		var url_parts = url.parse(req.url, true);
-		var room = url_parts.query['room'];
-		if (room === undefined){
-			res.writeHead(404); 
-			res.end("Missing room parameter.");
-		}
-		else{
-			req.headers['x-forwarded-for'] = req.connection.remoteAddress;
-			var serverNumber = parseInt(crypto.createHash('md5').update(room).digest("hex").substring(1, 10),16) % 2;
-			console.log(serverNumber);
-			proxy.web(req, res, {target: {
-									host: 'localhost',
-									port: servers[serverNumber]
-									}});			
-		}
-	});	
-	proxyServer.on('upgrade', function (req, socket, head) {
-		var url_parts = url.parse(req.url, true);
-		var room = url_parts.query['room'];
-		if (room === undefined){
-			//socket.close();
-		}
-		else{
-			req.headers['x-forwarded-for'] = req.connection.remoteAddress;
-			var serverNumber = parseInt(crypto.createHash('md5').update(room).digest("hex").substring(1, 10),16) % 2;
-			console.log(serverNumber);
-			proxy.ws(req, socket, head, {target: {
-									host: 'localhost',
-									port: servers[serverNumber],
-									ws: true}});			
-		}
-	});
-	proxyServer.listen(8080);
 }
